@@ -54,28 +54,37 @@ These formulations are implemented as modular `pyomo` models. A base class handl
 
 Each formulation is solved using CPLEX (with fallback to high-performance open-source solvers like HiGHS/GLPK).
 
-## Repository Structure
 
-```text
-notebooks/
-  ├── Complete-Notebook.ipynb      # Whole project codes and results, submission file for project
-  ├── sec2_gale_shapley.ipynb      # Classic models and cutoff concepts (Section 2)
-  ├── sec3_tie_formulations.ipynb  # Handling ties under restrictive policy (Section 3)
-  ├── sec4_policy_comparison.ipynb # Comparing Hungary vs. Chile vs. Ireland (Section 4)
-  └── sec5_6_common_quotas.ipynb   # NP-hard models with common quotas and ties (Sections 5 & 6)
-reports/
-  ├── photos/                      # All images used in reports
-  ├── optimization-models.md       # All formulations as complete mathematical models
-  ├── paper-summary.md             # Persian summary of the paper's core concepts
-  ├── project-report.md            # Persian report of the whole project
-  └── project-report.pdf           # PDF exported version of the project report
-scripts/
-  └── generate_datasets.py         # Script for generating dataset JSON files 
-src/
-  ├── models/
-  │   ├── base.py                  # Common model components
-  │   └── formulations.py          # Optimization formulations logic
-  ├── solver.py                    # Solve single/multiple models
-  ├── generator.py                 # Synthetic instance generation rules
-  ├── data_loader.py               # Load and parse dataset instances
-  └── utils.py                     # Metrics, hashing, and helper functions
+
+## Results
+
+The computational experiments yield results that are highly consistent with the findings of the original paper. Although the synthetic datasets used for this project were scaled down due to hardware and computational limits (meaning exact proportions differ from national-scale data), the relative performance and logical outcomes strongly align with theoretical expectations.
+
+The most important insights regarding policy trade-offs in the presence of ties:
+
+- **H-stability (Hungarian Policy)**: Strictly respects capacity constraints by conservatively rejecting all tied marginal students. It guarantees strong stability but results in unused seats and fewer students matched.
+- **L-stability (Chilean Policy)**: Maximizes student admissions by allowing capacity violations for the last tied group. It ensures fairness but breaks strict capacity bounds.
+- **Lottery (Irish Policy)**: Breaks ties randomly, acting as a middle ground that perfectly fills capacities without violations, though the randomness introduces variance in fairness.
+
+**Computational Insights**: 
+Solution times scale reasonably well for small and medium instances. Even large instances (e.g., 1,000 applicants) remain solvable within practical timeframes using modern IP solvers. Notably, **Binary Cutoff models**—despite generating significantly more variables and constraints—solve much faster than continuous models by providing tighter bounds and eliminating Big-M coefficients.
+
+Another fundamental result confirms a core property of large-scale matching markets: optimizing for *Student-Optimal* versus *Student-Pessimal* stable matchings yields nearly identical assignments, showing that the core stable solution is robust regardless of the objective function's direction.
+
+## Key Learnings
+
+Through this project, I developed a deep understanding of:
+
+1. **Combinatorial Optimization Theory**
+   - Mechanics of two-sided matching algorithms and stability concepts.
+   - Recognizing NP-hard structures in real-world resource allocation problems.
+   - Managing trade-offs between theoretical solution quality and computational tractability.
+
+2. **Integer Programming Modeling**
+   - Translating complex, real-world logical conditions into algebraic mathematical formulations.
+   - Comparing continuous vs. binary formulations for the exact same problem to evaluate solver efficiency.
+   - Utilizing Pyomo and CPLEX/HiGHS in a structured, multi-model architecture.
+
+3. **Software Engineering for Operations Research**
+   - Designing modular OR pipelines for extensibility, moving beyond monolithic Jupyter notebooks.
+   - Implementing reproducible synthetic data generation using strict seed controls and Python scripts.
